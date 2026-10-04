@@ -39,7 +39,7 @@ Filename: "{app}\ThumbForgeCli.exe"; Parameters: "register --pdf=1 --video=1 --a
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{app}\ThumbForgeCli.exe"; Parameters: "unregister"; Flags: runhidden
+Filename: "{app}\ThumbForgeCli.exe"; Parameters: "unregister"; Flags: runhidden; RunOnceId: "UnregisterThumbForge"
 
 [Code]
 procedure TerminateConflictingProcesses();
