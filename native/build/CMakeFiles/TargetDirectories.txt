@@ -1,0 +1,4 @@
+E:/Antigravity/PreviewIcon/native/build/CMakeFiles/PreviewIconProvider.dir
+E:/Antigravity/PreviewIcon/native/build/CMakeFiles/PreviewIconCli.dir
+E:/Antigravity/PreviewIcon/native/build/CMakeFiles/ALL_BUILD.dir
+E:/Antigravity/PreviewIcon/native/build/CMakeFiles/ZERO_CHECK.dir
