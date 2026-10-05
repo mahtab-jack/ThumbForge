@@ -31,7 +31,9 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, void **ppv) {
         IsEqualCLSID(rclsid, CLSID_ThumbForgeVideoThumbnailProvider) ||
         IsEqualCLSID(rclsid, CLSID_ThumbForgeAudioThumbnailProvider) ||
         IsEqualCLSID(rclsid, CLSID_ThumbForgeApkThumbnailProvider) ||
-        IsEqualCLSID(rclsid, CLSID_ThumbForgeCodeThumbnailProvider)) {
+        IsEqualCLSID(rclsid, CLSID_ThumbForgeCodeThumbnailProvider) ||
+        IsEqualCLSID(rclsid, CLSID_ThumbForgeHtmlThumbnailProvider) ||
+        IsEqualCLSID(rclsid, CLSID_ThumbForgeEpubThumbnailProvider)) {
         auto factory = new (std::nothrow) ClassFactory(rclsid);
         if (!factory) return E_OUTOFMEMORY;
 

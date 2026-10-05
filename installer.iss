@@ -35,7 +35,7 @@ Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\ThumbForgeCli.exe"; Parameters: "register --pdf=1 --video=1 --audio=1 --apk=1 --code=1 --dll=""{app}\ThumbForgeProvider.dll"""; Flags: runhidden
+Filename: "{app}\ThumbForgeCli.exe"; Parameters: "register --pdf=1 --video=1 --audio=1 --apk=1 --code=1 --html=1 --epub=1 --dll=""{app}\ThumbForgeProvider.dll"""; Flags: runhidden
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]

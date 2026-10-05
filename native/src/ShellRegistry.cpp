@@ -10,8 +10,8 @@
 extern HMODULE g_hModule;
 
 static const wchar_t* kThumbnailProviderGuid = L"{e357fccd-a995-4576-b01f-234630154e96}";
-static const wchar_t* kBackupRoot = L"Software\\PreviewIcon\\Backup";
-static const wchar_t* kSettingsRoot = L"Software\\PreviewIcon";
+static const wchar_t* kBackupRoot = L"Software\\ThumbForge\\Backup";
+static const wchar_t* kSettingsRoot = L"Software\\ThumbForge";
 
 std::wstring ShellRegistry::GetModuleDllPath() {
     wchar_t buf[MAX_PATH] = {0};
@@ -22,7 +22,7 @@ std::wstring ShellRegistry::GetModuleDllPath() {
     // Fall back to module path next to current executable
     GetModuleFileNameW(nullptr, buf, MAX_PATH);
     PathRemoveFileSpecW(buf);
-    PathAppendW(buf, L"PreviewIconProvider.dll");
+    PathAppendW(buf, L"ThumbForgeProvider.dll");
     return buf;
 }
 
@@ -32,7 +32,9 @@ static bool IsOurClsid(const wchar_t* val) {
             _wcsicmp(val, kVideoClsidString) == 0 ||
             _wcsicmp(val, kAudioClsidString) == 0 ||
             _wcsicmp(val, kApkClsidString) == 0 ||
-            _wcsicmp(val, kCodeClsidString) == 0);
+            _wcsicmp(val, kCodeClsidString) == 0 ||
+            _wcsicmp(val, kHtmlClsidString) == 0 ||
+            _wcsicmp(val, kEpubClsidString) == 0);
 }
 
 bool ShellRegistry::BackupExtension(const std::wstring& ext) {
@@ -251,21 +253,21 @@ static bool RegisterClsid(const std::wstring& clsidStr, const std::wstring& desc
     return true;
 }
 
-bool ShellRegistry::Register(bool enablePdf, bool enableVideo, bool enableAudio, bool enableApk, bool enableCode, const std::wstring& customDllPath) {
+bool ShellRegistry::Register(bool enablePdf, bool enableVideo, bool enableAudio, bool enableApk, bool enableCode, bool enableHtml, bool enableEpub, const std::wstring& customDllPath) {
     std::wstring dllPath = customDllPath.empty() ? GetModuleDllPath() : customDllPath;
 
     // Clean up rogue registrations
     CleanAppXRegistrations();
-    RestoreExtension(L".html");
-    RestoreExtension(L".htm");
     RestoreExtension(L".ts");
 
     // 1. Register CLSIDs
-    RegisterClsid(kPdfClsidString, L"PreviewIcon PDF Thumbnail Provider", dllPath);
-    RegisterClsid(kVideoClsidString, L"PreviewIcon Video Thumbnail Provider", dllPath);
-    RegisterClsid(kAudioClsidString, L"PreviewIcon Audio Thumbnail Provider", dllPath);
-    RegisterClsid(kApkClsidString, L"PreviewIcon APK Thumbnail Provider", dllPath);
-    RegisterClsid(kCodeClsidString, L"PreviewIcon Code Thumbnail Provider", dllPath);
+    RegisterClsid(kPdfClsidString, L"ThumbForge PDF Thumbnail Provider", dllPath);
+    RegisterClsid(kVideoClsidString, L"ThumbForge Video Thumbnail Provider", dllPath);
+    RegisterClsid(kAudioClsidString, L"ThumbForge Audio Thumbnail Provider", dllPath);
+    RegisterClsid(kApkClsidString, L"ThumbForge APK Thumbnail Provider", dllPath);
+    RegisterClsid(kCodeClsidString, L"ThumbForge Code Thumbnail Provider", dllPath);
+    RegisterClsid(kHtmlClsidString, L"ThumbForge HTML Thumbnail Provider", dllPath);
+    RegisterClsid(kEpubClsidString, L"ThumbForge EPUB Thumbnail Provider", dllPath);
 
     // 2. Handle PDF
     if (enablePdf) {
@@ -337,7 +339,27 @@ bool ShellRegistry::Register(bool enablePdf, bool enableVideo, bool enableAudio,
         }
     }
 
-    // 7. Save state & settings
+    // 7. Handle HTML extensions
+    for (const auto& ext : kSupportedHtmlExtensions) {
+        if (enableHtml) {
+            BackupExtension(ext);
+            SetExtensionHandler(ext, kHtmlClsidString);
+        } else {
+            RestoreExtension(ext);
+        }
+    }
+
+    // 8. Handle EPUB extensions
+    for (const auto& ext : kSupportedEpubExtensions) {
+        if (enableEpub) {
+            BackupExtension(ext);
+            SetExtensionHandler(ext, kEpubClsidString);
+        } else {
+            RestoreExtension(ext);
+        }
+    }
+
+    // 9. Save state & settings
     HKEY hSettings = nullptr;
     if (RegCreateKeyExW(HKEY_CURRENT_USER, kSettingsRoot, 0, nullptr, 0, KEY_WRITE, nullptr, &hSettings, nullptr) == ERROR_SUCCESS) {
         DWORD pdfVal = enablePdf ? 1 : 0;
@@ -345,11 +367,15 @@ bool ShellRegistry::Register(bool enablePdf, bool enableVideo, bool enableAudio,
         DWORD audVal = enableAudio ? 1 : 0;
         DWORD apkVal = enableApk ? 1 : 0;
         DWORD codVal = enableCode ? 1 : 0;
+        DWORD htmVal = enableHtml ? 1 : 0;
+        DWORD epbVal = enableEpub ? 1 : 0;
         RegSetValueExW(hSettings, L"PdfEnabled", 0, REG_DWORD, (const BYTE*)&pdfVal, sizeof(DWORD));
         RegSetValueExW(hSettings, L"VideoEnabled", 0, REG_DWORD, (const BYTE*)&vidVal, sizeof(DWORD));
         RegSetValueExW(hSettings, L"AudioEnabled", 0, REG_DWORD, (const BYTE*)&audVal, sizeof(DWORD));
         RegSetValueExW(hSettings, L"ApkEnabled", 0, REG_DWORD, (const BYTE*)&apkVal, sizeof(DWORD));
         RegSetValueExW(hSettings, L"CodeEnabled", 0, REG_DWORD, (const BYTE*)&codVal, sizeof(DWORD));
+        RegSetValueExW(hSettings, L"HtmlEnabled", 0, REG_DWORD, (const BYTE*)&htmVal, sizeof(DWORD));
+        RegSetValueExW(hSettings, L"EpubEnabled", 0, REG_DWORD, (const BYTE*)&epbVal, sizeof(DWORD));
         RegSetValueExW(hSettings, L"DllPath", 0, REG_SZ, (const BYTE*)dllPath.c_str(), (DWORD)(dllPath.length() + 1) * sizeof(wchar_t));
 
         std::wstring ffmpeg = GetFFmpegPath();
@@ -366,8 +392,6 @@ bool ShellRegistry::Register(bool enablePdf, bool enableVideo, bool enableAudio,
 bool ShellRegistry::Unregister() {
     // 1. Clean AppX registrations and legacy extensions
     CleanAppXRegistrations();
-    RestoreExtension(L".html");
-    RestoreExtension(L".htm");
     RestoreExtension(L".ts");
 
     // 2. Restore all extensions
@@ -393,6 +417,14 @@ bool ShellRegistry::Unregister() {
         RestoreExtension(ext);
     }
 
+    for (const auto& ext : kSupportedHtmlExtensions) {
+        RestoreExtension(ext);
+    }
+
+    for (const auto& ext : kSupportedEpubExtensions) {
+        RestoreExtension(ext);
+    }
+
     // 2. Remove CLSIDs
     auto deleteClsid = [](const std::wstring& clsidStr) {
         std::wstring inprocKey = L"Software\\Classes\\CLSID\\" + clsidStr + L"\\InprocServer32";
@@ -405,6 +437,8 @@ bool ShellRegistry::Unregister() {
     deleteClsid(kAudioClsidString);
     deleteClsid(kApkClsidString);
     deleteClsid(kCodeClsidString);
+    deleteClsid(kHtmlClsidString);
+    deleteClsid(kEpubClsidString);
 
     // 3. Update settings
     HKEY hSettings = nullptr;
@@ -415,6 +449,8 @@ bool ShellRegistry::Unregister() {
         RegSetValueExW(hSettings, L"AudioEnabled", 0, REG_DWORD, (const BYTE*)&zero, sizeof(DWORD));
         RegSetValueExW(hSettings, L"ApkEnabled", 0, REG_DWORD, (const BYTE*)&zero, sizeof(DWORD));
         RegSetValueExW(hSettings, L"CodeEnabled", 0, REG_DWORD, (const BYTE*)&zero, sizeof(DWORD));
+        RegSetValueExW(hSettings, L"HtmlEnabled", 0, REG_DWORD, (const BYTE*)&zero, sizeof(DWORD));
+        RegSetValueExW(hSettings, L"EpubEnabled", 0, REG_DWORD, (const BYTE*)&zero, sizeof(DWORD));
         RegCloseKey(hSettings);
     }
 
@@ -522,6 +558,44 @@ ShellStatusInfo ShellRegistry::GetStatus() {
     }
     info.codeExtensionsEnabledCount = codeCount;
     info.isCodeEnabled = (codeCount > 0);
+
+    // Check HTML extensions
+    int htmlCount = 0;
+    for (const auto& ext : kSupportedHtmlExtensions) {
+        std::wstring hKeyPath = L"Software\\Classes\\" + ext + L"\\ShellEx\\" + std::wstring(kThumbnailProviderGuid);
+        if (RegOpenKeyExW(HKEY_CURRENT_USER, hKeyPath.c_str(), 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+            wchar_t val[256] = {0};
+            DWORD valSize = sizeof(val);
+            if (RegQueryValueExW(hKey, nullptr, nullptr, nullptr, (LPBYTE)val, &valSize) == ERROR_SUCCESS) {
+                if (_wcsicmp(val, kHtmlClsidString) == 0) {
+                    htmlCount++;
+                }
+            }
+            RegCloseKey(hKey);
+        }
+    }
+    info.htmlExtensionsEnabledCount = htmlCount;
+    info.isHtmlEnabled = (htmlCount > 0);
+    info.totalHtmlExtensionsCount = (int)kSupportedHtmlExtensions.size();
+
+    // Check EPUB extensions
+    int epubCount = 0;
+    for (const auto& ext : kSupportedEpubExtensions) {
+        std::wstring eKeyPath = L"Software\\Classes\\" + ext + L"\\ShellEx\\" + std::wstring(kThumbnailProviderGuid);
+        if (RegOpenKeyExW(HKEY_CURRENT_USER, eKeyPath.c_str(), 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+            wchar_t val[256] = {0};
+            DWORD valSize = sizeof(val);
+            if (RegQueryValueExW(hKey, nullptr, nullptr, nullptr, (LPBYTE)val, &valSize) == ERROR_SUCCESS) {
+                if (_wcsicmp(val, kEpubClsidString) == 0) {
+                    epubCount++;
+                }
+            }
+            RegCloseKey(hKey);
+        }
+    }
+    info.epubExtensionsEnabledCount = epubCount;
+    info.isEpubEnabled = (epubCount > 0);
+    info.totalEpubExtensionsCount = (int)kSupportedEpubExtensions.size();
 
     return info;
 }

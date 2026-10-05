@@ -142,4 +142,56 @@ private:
     std::wstring m_filePath;
 };
 
+// HTML Provider: supports file, item & stream (A4 browser-rendered preview)
+class ThumbForgeHtmlThumbnailProvider : public IThumbnailProvider,
+                                         public IInitializeWithStream,
+                                         public IInitializeWithItem,
+                                         public IInitializeWithFile
+{
+public:
+    ThumbForgeHtmlThumbnailProvider();
+    virtual ~ThumbForgeHtmlThumbnailProvider();
+
+    IFACEMETHODIMP QueryInterface(REFIID riid, void **ppv) override;
+    IFACEMETHODIMP_(ULONG) AddRef() override;
+    IFACEMETHODIMP_(ULONG) Release() override;
+
+    IFACEMETHODIMP Initialize(IStream *pstream, DWORD grfMode) override;
+    IFACEMETHODIMP Initialize(IShellItem *psi, DWORD grfMode) override;
+    IFACEMETHODIMP Initialize(LPCWSTR pszFilePath, DWORD grfMode) override;
+    IFACEMETHODIMP GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) override;
+
+private:
+    std::atomic<long> m_refCount{1};
+    IStream* m_pStream{nullptr};
+    std::wstring m_filePath;
+    std::wstring m_tempFilePath;
+};
+
+// EPUB Provider: supports file, item & stream (A4 book sheet / cover preview)
+class ThumbForgeEpubThumbnailProvider : public IThumbnailProvider,
+                                         public IInitializeWithStream,
+                                         public IInitializeWithItem,
+                                         public IInitializeWithFile
+{
+public:
+    ThumbForgeEpubThumbnailProvider();
+    virtual ~ThumbForgeEpubThumbnailProvider();
+
+    IFACEMETHODIMP QueryInterface(REFIID riid, void **ppv) override;
+    IFACEMETHODIMP_(ULONG) AddRef() override;
+    IFACEMETHODIMP_(ULONG) Release() override;
+
+    IFACEMETHODIMP Initialize(IStream *pstream, DWORD grfMode) override;
+    IFACEMETHODIMP Initialize(IShellItem *psi, DWORD grfMode) override;
+    IFACEMETHODIMP Initialize(LPCWSTR pszFilePath, DWORD grfMode) override;
+    IFACEMETHODIMP GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) override;
+
+private:
+    std::atomic<long> m_refCount{1};
+    IStream* m_pStream{nullptr};
+    std::wstring m_filePath;
+    std::wstring m_tempFilePath;
+};
+
 using ThumbForgeThumbnailProvider = ThumbForgePdfThumbnailProvider;

@@ -16,6 +16,12 @@ class ShellStatus {
   final bool isCodeEnabled;
   final int codeExtensionsEnabledCount;
   final int totalCodeExtensionsCount;
+  final bool isHtmlEnabled;
+  final int htmlExtensionsEnabledCount;
+  final int totalHtmlExtensionsCount;
+  final bool isEpubEnabled;
+  final int epubExtensionsEnabledCount;
+  final int totalEpubExtensionsCount;
   final String ffmpegPath;
 
   ShellStatus({
@@ -31,7 +37,13 @@ class ShellStatus {
     this.isApkEnabled = false,
     this.isCodeEnabled = false,
     this.codeExtensionsEnabledCount = 0,
-    this.totalCodeExtensionsCount = 9,
+    this.totalCodeExtensionsCount = 6,
+    this.isHtmlEnabled = false,
+    this.htmlExtensionsEnabledCount = 0,
+    this.totalHtmlExtensionsCount = 2,
+    this.isEpubEnabled = false,
+    this.epubExtensionsEnabledCount = 0,
+    this.totalEpubExtensionsCount = 1,
     required this.ffmpegPath,
   });
 
@@ -49,7 +61,13 @@ class ShellStatus {
       isApkEnabled: false,
       isCodeEnabled: false,
       codeExtensionsEnabledCount: 0,
-      totalCodeExtensionsCount: 9,
+      totalCodeExtensionsCount: 6,
+      isHtmlEnabled: false,
+      htmlExtensionsEnabledCount: 0,
+      totalHtmlExtensionsCount: 2,
+      isEpubEnabled: false,
+      epubExtensionsEnabledCount: 0,
+      totalEpubExtensionsCount: 1,
       ffmpegPath: r'C:\ffmpeg\bin\ffmpeg.exe',
     );
   }
@@ -68,7 +86,13 @@ class ShellStatus {
       isApkEnabled: json['isApkEnabled'] == true,
       isCodeEnabled: json['isCodeEnabled'] == true,
       codeExtensionsEnabledCount: json['codeExtensionsEnabledCount'] ?? 0,
-      totalCodeExtensionsCount: json['totalCodeExtensionsCount'] ?? 9,
+      totalCodeExtensionsCount: json['totalCodeExtensionsCount'] ?? 6,
+      isHtmlEnabled: json['isHtmlEnabled'] == true,
+      htmlExtensionsEnabledCount: json['htmlExtensionsEnabledCount'] ?? 0,
+      totalHtmlExtensionsCount: json['totalHtmlExtensionsCount'] ?? 2,
+      isEpubEnabled: json['isEpubEnabled'] == true,
+      epubExtensionsEnabledCount: json['epubExtensionsEnabledCount'] ?? 0,
+      totalEpubExtensionsCount: json['totalEpubExtensionsCount'] ?? 1,
       ffmpegPath: json['ffmpegPath'] ?? r'C:\ffmpeg\bin\ffmpeg.exe',
     );
   }
@@ -111,6 +135,8 @@ class ShellService {
       p.join(p.dirname(Platform.resolvedExecutable), 'ThumbForgeCli.exe'),
       p.join(p.dirname(Platform.resolvedExecutable), 'native', 'build_nmake', 'ThumbForgeCli.exe'),
       p.join(p.dirname(Platform.resolvedExecutable), 'native', 'build', 'Release', 'ThumbForgeCli.exe'),
+      r'E:\Antigravity\ThumbForge\native\build_nmake\ThumbForgeCli.exe',
+      r'E:\Antigravity\ThumbForge\native\build\Release\ThumbForgeCli.exe',
       r'E:\Antigravity\PreviewIcon\native\build_nmake\ThumbForgeCli.exe',
       r'E:\Antigravity\PreviewIcon\native\build\Release\ThumbForgeCli.exe',
     ];
@@ -136,6 +162,8 @@ class ShellService {
       p.join(p.dirname(Platform.resolvedExecutable), 'ThumbForgeProvider.dll'),
       p.join(p.dirname(Platform.resolvedExecutable), 'native', 'build_nmake', 'ThumbForgeProvider.dll'),
       p.join(p.dirname(Platform.resolvedExecutable), 'native', 'build', 'Release', 'ThumbForgeProvider.dll'),
+      r'E:\Antigravity\ThumbForge\native\build_nmake\ThumbForgeProvider.dll',
+      r'E:\Antigravity\ThumbForge\native\build\Release\ThumbForgeProvider.dll',
       r'E:\Antigravity\PreviewIcon\native\build_nmake\ThumbForgeProvider.dll',
       r'E:\Antigravity\PreviewIcon\native\build\Release\ThumbForgeProvider.dll',
     ];
@@ -178,6 +206,8 @@ class ShellService {
     bool enableAudio = true,
     bool enableApk = true,
     bool enableCode = true,
+    bool enableHtml = true,
+    bool enableEpub = true,
   }) async {
     final cli = getCliPath();
     final dll = getDllPath();
@@ -189,6 +219,8 @@ class ShellService {
       '--audio=${enableAudio ? 1 : 0}',
       '--apk=${enableApk ? 1 : 0}',
       '--code=${enableCode ? 1 : 0}',
+      '--html=${enableHtml ? 1 : 0}',
+      '--epub=${enableEpub ? 1 : 0}',
       '--dll=$dll',
     ];
 

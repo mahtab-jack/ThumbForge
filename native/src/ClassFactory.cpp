@@ -61,6 +61,18 @@ IFACEMETHODIMP ClassFactory::CreateInstance(IUnknown *pUnkOuter, REFIID riid, vo
         HRESULT hr = provider->QueryInterface(riid, ppv);
         provider->Release();
         return hr;
+    } else if (IsEqualCLSID(m_clsid, CLSID_ThumbForgeHtmlThumbnailProvider)) {
+        auto provider = new (std::nothrow) ThumbForgeHtmlThumbnailProvider();
+        if (!provider) return E_OUTOFMEMORY;
+        HRESULT hr = provider->QueryInterface(riid, ppv);
+        provider->Release();
+        return hr;
+    } else if (IsEqualCLSID(m_clsid, CLSID_ThumbForgeEpubThumbnailProvider)) {
+        auto provider = new (std::nothrow) ThumbForgeEpubThumbnailProvider();
+        if (!provider) return E_OUTOFMEMORY;
+        HRESULT hr = provider->QueryInterface(riid, ppv);
+        provider->Release();
+        return hr;
     } else {
         auto provider = new (std::nothrow) ThumbForgePdfThumbnailProvider();
         if (!provider) return E_OUTOFMEMORY;

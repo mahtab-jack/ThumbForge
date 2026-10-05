@@ -40,6 +40,16 @@ inline const CLSID CLSID_ThumbForgeCodeThumbnailProvider =
     { 0x5a18e5b4, 0x1174, 0x4f0f, { 0x8e, 0x1b, 0x93, 0x3d, 0x5a, 0x1c, 0xb0, 0x96 } };
 inline const wchar_t* kCodeClsidString = L"{5A18E5B4-1174-4F0F-8E1B-933D5A1CB096}";
 
+// HTML Provider CLSID: {5A18E5B4-1174-4F0F-8E1B-933D5A1CB097}
+inline const CLSID CLSID_ThumbForgeHtmlThumbnailProvider = 
+    { 0x5a18e5b4, 0x1174, 0x4f0f, { 0x8e, 0x1b, 0x93, 0x3d, 0x5a, 0x1c, 0xb0, 0x97 } };
+inline const wchar_t* kHtmlClsidString = L"{5A18E5B4-1174-4F0F-8E1B-933D5A1CB097}";
+
+// EPUB Provider CLSID: {5A18E5B4-1174-4F0F-8E1B-933D5A1CB098}
+inline const CLSID CLSID_ThumbForgeEpubThumbnailProvider = 
+    { 0x5a18e5b4, 0x1174, 0x4f0f, { 0x8e, 0x1b, 0x93, 0x3d, 0x5a, 0x1c, 0xb0, 0x98 } };
+inline const wchar_t* kEpubClsidString = L"{5A18E5B4-1174-4F0F-8E1B-933D5A1CB098}";
+
 // Legacy / alias definitions
 inline const CLSID CLSID_ThumbForgeThumbnailProvider = CLSID_ThumbForgePdfThumbnailProvider;
 inline const wchar_t* kClsidString = kPdfClsidString;
@@ -64,6 +74,16 @@ inline const std::vector<std::wstring> kSupportedApkExtensions = {
 // Supported Code / Markup extensions
 inline const std::vector<std::wstring> kSupportedCodeExtensions = {
     L".json", L".md", L".markdown", L".js", L".mjs", L".css"
+};
+
+// Supported HTML extensions
+inline const std::vector<std::wstring> kSupportedHtmlExtensions = {
+    L".html", L".htm"
+};
+
+// Supported EPUB extensions
+inline const std::vector<std::wstring> kSupportedEpubExtensions = {
+    L".epub"
 };
 
 // GDI+ RAII helper

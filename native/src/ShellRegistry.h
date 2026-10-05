@@ -10,18 +10,24 @@ struct ShellStatusInfo {
     bool isAudioEnabled = false;
     bool isApkEnabled = false;
     bool isCodeEnabled = false;
+    bool isHtmlEnabled = false;
+    bool isEpubEnabled = false;
     int videoExtensionsEnabledCount = 0;
     int totalVideoExtensionsCount = 0;
     int audioExtensionsEnabledCount = 0;
     int totalAudioExtensionsCount = 0;
     int codeExtensionsEnabledCount = 0;
     int totalCodeExtensionsCount = 0;
+    int htmlExtensionsEnabledCount = 0;
+    int totalHtmlExtensionsCount = 0;
+    int epubExtensionsEnabledCount = 0;
+    int totalEpubExtensionsCount = 0;
 };
 
 class ShellRegistry {
 public:
     // Register COM CLSIDs and associate extensions
-    static bool Register(bool enablePdf, bool enableVideo, bool enableAudio = true, bool enableApk = true, bool enableCode = true, const std::wstring& customDllPath = L"");
+    static bool Register(bool enablePdf, bool enableVideo, bool enableAudio = true, bool enableApk = true, bool enableCode = true, bool enableHtml = true, bool enableEpub = true, const std::wstring& customDllPath = L"");
 
     // Reset/Unregister: remove custom thumbnail associations, restore defaults, clean up
     static bool Unregister();

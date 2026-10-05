@@ -18,7 +18,8 @@ bool VideoRenderer::IsSupportedExtension(const std::wstring& ext) {
 std::wstring VideoRenderer::GetFFmpegPath() {
     // 1. Check registry override
     HKEY hKey = nullptr;
-    if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\PreviewIcon", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\ThumbForge", 0, KEY_READ, &hKey) == ERROR_SUCCESS ||
+        RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\PreviewIcon", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
         wchar_t buf[MAX_PATH] = {0};
         DWORD bufSize = sizeof(buf);
         if (RegQueryValueExW(hKey, L"FFmpegPath", nullptr, nullptr, (LPBYTE)buf, &bufSize) == ERROR_SUCCESS) {

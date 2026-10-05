@@ -15,6 +15,7 @@ class _CustomTitleBarState extends State<CustomTitleBar> {
   bool _minimizeHovered = false;
   bool _maximizeHovered = false;
   bool _themeHovered = false;
+  bool _githubHovered = false;
 
   void _handleMinimize() {
     if (!Platform.environment.containsKey('FLUTTER_TEST')) {
@@ -60,20 +61,17 @@ class _CustomTitleBarState extends State<CustomTitleBar> {
               alignment: Alignment.centerLeft,
               child: Row(
                 children: [
-                  Container(
+                  SizedBox(
                     width: 22,
                     height: 22,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: palette.border, width: 1.0),
-                    ),
                     child: Image.asset(
                       'Assets/app_icon.png',
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'PREVIEWICON // THUMBNAIL MANAGER',
+                    'THUMBFORGE // THUMBNAIL MANAGER',
                     style: KineticTheme.labelSmall.copyWith(
                       color: palette.foreground,
                       fontWeight: FontWeight.w800,
@@ -98,6 +96,50 @@ class _CustomTitleBarState extends State<CustomTitleBar> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Github Button
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                onEnter: (_) => setState(() => _githubHovered = true),
+                onExit: (_) => setState(() => _githubHovered = false),
+                child: GestureDetector(
+                  onTap: () {
+                    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+                      Process.run('cmd', ['/c', 'start', 'https://github.com/mahtab-jack/ThumbForge']);
+                    }
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    height: 42,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    color: _githubHovered ? palette.surface : Colors.transparent,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.open_in_new,
+                          size: 15,
+                          color: palette.foreground,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'GITHUB',
+                          style: KineticTheme.labelSmall.copyWith(
+                            color: palette.foreground,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              Container(
+                width: 1,
+                height: 24,
+                color: palette.border,
+              ),
+
               // Light / Dark Theme Button
               MouseRegion(
                 cursor: SystemMouseCursors.click,

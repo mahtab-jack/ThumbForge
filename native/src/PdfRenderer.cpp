@@ -148,11 +148,16 @@ PdfThumbnailResult PdfRenderer::RenderLockedPdfIcon(UINT cx) {
 
         // 2. Lock icon in the exact CENTRE on the white canvas (clean & prominent)
         float lockSize = size * 0.52f;
-        float lockX = (size - lockSize) * 0.5f;
-        float lockY = (size - lockSize) * 0.5f;
+        float origLockW = pLockBmp->GetWidth();
+        float origLockH = pLockBmp->GetHeight();
+        float lockScale = (std::min)(lockSize / origLockW, lockSize / origLockH);
+        float drawW = origLockW * lockScale;
+        float drawH = origLockH * lockScale;
+        float lockX = (size - drawW) * 0.5f;
+        float lockY = (size - drawH) * 0.5f;
 
         // Draw centered lock icon directly on the white canvas
-        g.DrawImage(pLockBmp.get(), lockX, lockY, lockSize, lockSize);
+        g.DrawImage(pLockBmp.get(), lockX, lockY, drawW, drawH);
 
         // 3. Bottom-right: intentionally left clean with NO custom badges
         // Windows File Explorer overlays the user's default app badge (e.g. Chrome) cleanly here

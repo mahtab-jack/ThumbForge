@@ -21,6 +21,8 @@ set(COMMON_SOURCES
     src/AudioRenderer.cpp
     src/ApkRenderer.cpp
     src/CodeRenderer.cpp
+    src/HtmlRenderer.cpp
+    src/EpubRenderer.cpp
     src/ShellRegistry.cpp
 )
 

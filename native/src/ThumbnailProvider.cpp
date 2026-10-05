@@ -4,19 +4,21 @@
 #include "AudioRenderer.h"
 #include "ApkRenderer.h"
 #include "CodeRenderer.h"
+#include "HtmlRenderer.h"
+#include "EpubRenderer.h"
 #include <shlwapi.h>
 
 extern std::atomic<long> g_dllRefCount;
 
 // ============================================================================
-// PreviewIconPdfThumbnailProvider Implementation
+// ThumbForgePdfThumbnailProvider Implementation
 // ============================================================================
 
-PreviewIconPdfThumbnailProvider::PreviewIconPdfThumbnailProvider() {
+ThumbForgePdfThumbnailProvider::ThumbForgePdfThumbnailProvider() {
     g_dllRefCount++;
 }
 
-PreviewIconPdfThumbnailProvider::~PreviewIconPdfThumbnailProvider() {
+ThumbForgePdfThumbnailProvider::~ThumbForgePdfThumbnailProvider() {
     if (m_pStream) {
         m_pStream->Release();
         m_pStream = nullptr;
@@ -24,7 +26,7 @@ PreviewIconPdfThumbnailProvider::~PreviewIconPdfThumbnailProvider() {
     g_dllRefCount--;
 }
 
-IFACEMETHODIMP PreviewIconPdfThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
+IFACEMETHODIMP ThumbForgePdfThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
     if (!ppv) return E_POINTER;
     *ppv = nullptr;
 
@@ -42,11 +44,11 @@ IFACEMETHODIMP PreviewIconPdfThumbnailProvider::QueryInterface(REFIID riid, void
     return S_OK;
 }
 
-IFACEMETHODIMP_(ULONG) PreviewIconPdfThumbnailProvider::AddRef() {
+IFACEMETHODIMP_(ULONG) ThumbForgePdfThumbnailProvider::AddRef() {
     return ++m_refCount;
 }
 
-IFACEMETHODIMP_(ULONG) PreviewIconPdfThumbnailProvider::Release() {
+IFACEMETHODIMP_(ULONG) ThumbForgePdfThumbnailProvider::Release() {
     ULONG ref = --m_refCount;
     if (ref == 0) {
         delete this;
@@ -54,7 +56,7 @@ IFACEMETHODIMP_(ULONG) PreviewIconPdfThumbnailProvider::Release() {
     return ref;
 }
 
-IFACEMETHODIMP PreviewIconPdfThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgePdfThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
     if (m_pStream) {
         m_pStream->Release();
         m_pStream = nullptr;
@@ -66,14 +68,14 @@ IFACEMETHODIMP PreviewIconPdfThumbnailProvider::Initialize(IStream *pstream, DWO
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconPdfThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgePdfThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
     if (pszFilePath) {
         m_filePath = pszFilePath;
     }
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconPdfThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
+IFACEMETHODIMP ThumbForgePdfThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
     if (!phbmp || !pdwAlpha) {
         return E_POINTER;
     }
@@ -179,14 +181,14 @@ static bool IsBinaryOrMediaHeader(const BYTE* data, size_t size) {
 }
 
 // ============================================================================
-// PreviewIconVideoThumbnailProvider Implementation
+// ThumbForgeVideoThumbnailProvider Implementation
 // ============================================================================
 
-PreviewIconVideoThumbnailProvider::PreviewIconVideoThumbnailProvider() {
+ThumbForgeVideoThumbnailProvider::ThumbForgeVideoThumbnailProvider() {
     g_dllRefCount++;
 }
 
-PreviewIconVideoThumbnailProvider::~PreviewIconVideoThumbnailProvider() {
+ThumbForgeVideoThumbnailProvider::~ThumbForgeVideoThumbnailProvider() {
     if (m_pStream) {
         m_pStream->Release();
         m_pStream = nullptr;
@@ -197,7 +199,7 @@ PreviewIconVideoThumbnailProvider::~PreviewIconVideoThumbnailProvider() {
     g_dllRefCount--;
 }
 
-IFACEMETHODIMP PreviewIconVideoThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
+IFACEMETHODIMP ThumbForgeVideoThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
     if (!ppv) return E_POINTER;
     *ppv = nullptr;
 
@@ -217,11 +219,11 @@ IFACEMETHODIMP PreviewIconVideoThumbnailProvider::QueryInterface(REFIID riid, vo
     return S_OK;
 }
 
-IFACEMETHODIMP_(ULONG) PreviewIconVideoThumbnailProvider::AddRef() {
+IFACEMETHODIMP_(ULONG) ThumbForgeVideoThumbnailProvider::AddRef() {
     return ++m_refCount;
 }
 
-IFACEMETHODIMP_(ULONG) PreviewIconVideoThumbnailProvider::Release() {
+IFACEMETHODIMP_(ULONG) ThumbForgeVideoThumbnailProvider::Release() {
     ULONG ref = --m_refCount;
     if (ref == 0) {
         delete this;
@@ -229,7 +231,7 @@ IFACEMETHODIMP_(ULONG) PreviewIconVideoThumbnailProvider::Release() {
     return ref;
 }
 
-IFACEMETHODIMP PreviewIconVideoThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgeVideoThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
     if (m_pStream) {
         m_pStream->Release();
         m_pStream = nullptr;
@@ -250,7 +252,7 @@ IFACEMETHODIMP PreviewIconVideoThumbnailProvider::Initialize(IStream *pstream, D
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconVideoThumbnailProvider::Initialize(IShellItem *psi, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgeVideoThumbnailProvider::Initialize(IShellItem *psi, DWORD /*grfMode*/) {
     if (psi) {
         LPWSTR pszPath = nullptr;
         if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath)) && pszPath) {
@@ -261,14 +263,14 @@ IFACEMETHODIMP PreviewIconVideoThumbnailProvider::Initialize(IShellItem *psi, DW
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconVideoThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgeVideoThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
     if (pszFilePath) {
         m_filePath = pszFilePath;
     }
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconVideoThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
+IFACEMETHODIMP ThumbForgeVideoThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
     if (!phbmp || !pdwAlpha) {
         return E_POINTER;
     }
@@ -298,14 +300,14 @@ IFACEMETHODIMP PreviewIconVideoThumbnailProvider::GetThumbnail(UINT cx, HBITMAP 
 }
 
 // ============================================================================
-// PreviewIconAudioThumbnailProvider Implementation
+// ThumbForgeAudioThumbnailProvider Implementation
 // ============================================================================
 
-PreviewIconAudioThumbnailProvider::PreviewIconAudioThumbnailProvider() {
+ThumbForgeAudioThumbnailProvider::ThumbForgeAudioThumbnailProvider() {
     g_dllRefCount++;
 }
 
-PreviewIconAudioThumbnailProvider::~PreviewIconAudioThumbnailProvider() {
+ThumbForgeAudioThumbnailProvider::~ThumbForgeAudioThumbnailProvider() {
     if (m_pStream) {
         m_pStream->Release();
         m_pStream = nullptr;
@@ -316,7 +318,7 @@ PreviewIconAudioThumbnailProvider::~PreviewIconAudioThumbnailProvider() {
     g_dllRefCount--;
 }
 
-IFACEMETHODIMP PreviewIconAudioThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
+IFACEMETHODIMP ThumbForgeAudioThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
     if (!ppv) return E_POINTER;
     *ppv = nullptr;
 
@@ -336,11 +338,11 @@ IFACEMETHODIMP PreviewIconAudioThumbnailProvider::QueryInterface(REFIID riid, vo
     return S_OK;
 }
 
-IFACEMETHODIMP_(ULONG) PreviewIconAudioThumbnailProvider::AddRef() {
+IFACEMETHODIMP_(ULONG) ThumbForgeAudioThumbnailProvider::AddRef() {
     return ++m_refCount;
 }
 
-IFACEMETHODIMP_(ULONG) PreviewIconAudioThumbnailProvider::Release() {
+IFACEMETHODIMP_(ULONG) ThumbForgeAudioThumbnailProvider::Release() {
     ULONG ref = --m_refCount;
     if (ref == 0) {
         delete this;
@@ -348,7 +350,7 @@ IFACEMETHODIMP_(ULONG) PreviewIconAudioThumbnailProvider::Release() {
     return ref;
 }
 
-IFACEMETHODIMP PreviewIconAudioThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgeAudioThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
     if (m_pStream) {
         m_pStream->Release();
         m_pStream = nullptr;
@@ -369,7 +371,7 @@ IFACEMETHODIMP PreviewIconAudioThumbnailProvider::Initialize(IStream *pstream, D
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconAudioThumbnailProvider::Initialize(IShellItem *psi, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgeAudioThumbnailProvider::Initialize(IShellItem *psi, DWORD /*grfMode*/) {
     if (psi) {
         LPWSTR pszPath = nullptr;
         if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath)) && pszPath) {
@@ -380,14 +382,14 @@ IFACEMETHODIMP PreviewIconAudioThumbnailProvider::Initialize(IShellItem *psi, DW
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconAudioThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgeAudioThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
     if (pszFilePath) {
         m_filePath = pszFilePath;
     }
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconAudioThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
+IFACEMETHODIMP ThumbForgeAudioThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
     if (!phbmp || !pdwAlpha) {
         return E_POINTER;
     }
@@ -417,14 +419,14 @@ IFACEMETHODIMP PreviewIconAudioThumbnailProvider::GetThumbnail(UINT cx, HBITMAP 
 }
 
 // ============================================================================
-// PreviewIconApkThumbnailProvider Implementation
+// ThumbForgeApkThumbnailProvider Implementation
 // ============================================================================
 
-PreviewIconApkThumbnailProvider::PreviewIconApkThumbnailProvider() {
+ThumbForgeApkThumbnailProvider::ThumbForgeApkThumbnailProvider() {
     g_dllRefCount++;
 }
 
-PreviewIconApkThumbnailProvider::~PreviewIconApkThumbnailProvider() {
+ThumbForgeApkThumbnailProvider::~ThumbForgeApkThumbnailProvider() {
     if (m_pStream) {
         m_pStream->Release();
         m_pStream = nullptr;
@@ -435,7 +437,7 @@ PreviewIconApkThumbnailProvider::~PreviewIconApkThumbnailProvider() {
     g_dllRefCount--;
 }
 
-IFACEMETHODIMP PreviewIconApkThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
+IFACEMETHODIMP ThumbForgeApkThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
     if (!ppv) return E_POINTER;
     *ppv = nullptr;
 
@@ -455,11 +457,11 @@ IFACEMETHODIMP PreviewIconApkThumbnailProvider::QueryInterface(REFIID riid, void
     return S_OK;
 }
 
-IFACEMETHODIMP_(ULONG) PreviewIconApkThumbnailProvider::AddRef() {
+IFACEMETHODIMP_(ULONG) ThumbForgeApkThumbnailProvider::AddRef() {
     return ++m_refCount;
 }
 
-IFACEMETHODIMP_(ULONG) PreviewIconApkThumbnailProvider::Release() {
+IFACEMETHODIMP_(ULONG) ThumbForgeApkThumbnailProvider::Release() {
     ULONG ref = --m_refCount;
     if (ref == 0) {
         delete this;
@@ -467,7 +469,7 @@ IFACEMETHODIMP_(ULONG) PreviewIconApkThumbnailProvider::Release() {
     return ref;
 }
 
-IFACEMETHODIMP PreviewIconApkThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgeApkThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
     if (m_pStream) {
         m_pStream->Release();
         m_pStream = nullptr;
@@ -488,7 +490,7 @@ IFACEMETHODIMP PreviewIconApkThumbnailProvider::Initialize(IStream *pstream, DWO
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconApkThumbnailProvider::Initialize(IShellItem *psi, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgeApkThumbnailProvider::Initialize(IShellItem *psi, DWORD /*grfMode*/) {
     if (psi) {
         LPWSTR pszPath = nullptr;
         if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath)) && pszPath) {
@@ -499,14 +501,14 @@ IFACEMETHODIMP PreviewIconApkThumbnailProvider::Initialize(IShellItem *psi, DWOR
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconApkThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgeApkThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
     if (pszFilePath) {
         m_filePath = pszFilePath;
     }
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconApkThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
+IFACEMETHODIMP ThumbForgeApkThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
     if (!phbmp || !pdwAlpha) {
         return E_POINTER;
     }
@@ -534,14 +536,14 @@ IFACEMETHODIMP PreviewIconApkThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *p
 }
 
 // ============================================================================
-// PreviewIconCodeThumbnailProvider Implementation
+// ThumbForgeCodeThumbnailProvider Implementation
 // ============================================================================
 
-PreviewIconCodeThumbnailProvider::PreviewIconCodeThumbnailProvider() {
+ThumbForgeCodeThumbnailProvider::ThumbForgeCodeThumbnailProvider() {
     g_dllRefCount++;
 }
 
-PreviewIconCodeThumbnailProvider::~PreviewIconCodeThumbnailProvider() {
+ThumbForgeCodeThumbnailProvider::~ThumbForgeCodeThumbnailProvider() {
     if (m_pStream) {
         m_pStream->Release();
         m_pStream = nullptr;
@@ -549,7 +551,7 @@ PreviewIconCodeThumbnailProvider::~PreviewIconCodeThumbnailProvider() {
     g_dllRefCount--;
 }
 
-IFACEMETHODIMP PreviewIconCodeThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
+IFACEMETHODIMP ThumbForgeCodeThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
     if (!ppv) return E_POINTER;
     *ppv = nullptr;
 
@@ -567,11 +569,11 @@ IFACEMETHODIMP PreviewIconCodeThumbnailProvider::QueryInterface(REFIID riid, voi
     return S_OK;
 }
 
-IFACEMETHODIMP_(ULONG) PreviewIconCodeThumbnailProvider::AddRef() {
+IFACEMETHODIMP_(ULONG) ThumbForgeCodeThumbnailProvider::AddRef() {
     return ++m_refCount;
 }
 
-IFACEMETHODIMP_(ULONG) PreviewIconCodeThumbnailProvider::Release() {
+IFACEMETHODIMP_(ULONG) ThumbForgeCodeThumbnailProvider::Release() {
     ULONG ref = --m_refCount;
     if (ref == 0) {
         delete this;
@@ -579,7 +581,7 @@ IFACEMETHODIMP_(ULONG) PreviewIconCodeThumbnailProvider::Release() {
     return ref;
 }
 
-IFACEMETHODIMP PreviewIconCodeThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgeCodeThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
     if (m_pStream) {
         m_pStream->Release();
         m_pStream = nullptr;
@@ -591,14 +593,14 @@ IFACEMETHODIMP PreviewIconCodeThumbnailProvider::Initialize(IStream *pstream, DW
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconCodeThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
+IFACEMETHODIMP ThumbForgeCodeThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
     if (pszFilePath) {
         m_filePath = pszFilePath;
     }
     return S_OK;
 }
 
-IFACEMETHODIMP PreviewIconCodeThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
+IFACEMETHODIMP ThumbForgeCodeThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
     if (!phbmp || !pdwAlpha) {
         return E_POINTER;
     }
@@ -647,6 +649,242 @@ IFACEMETHODIMP PreviewIconCodeThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *
         }
 
         CodeThumbnailResult res = CodeRenderer::RenderThumbnail(m_filePath, cx);
+        if (res.success && res.hBitmap) {
+            *phbmp = res.hBitmap;
+            *pdwAlpha = res.alphaType;
+            return S_OK;
+        }
+    }
+
+    return E_FAIL;
+}
+
+// ============================================================================
+// ThumbForgeHtmlThumbnailProvider Implementation
+// ============================================================================
+
+ThumbForgeHtmlThumbnailProvider::ThumbForgeHtmlThumbnailProvider() {
+    g_dllRefCount++;
+}
+
+ThumbForgeHtmlThumbnailProvider::~ThumbForgeHtmlThumbnailProvider() {
+    if (m_pStream) {
+        m_pStream->Release();
+        m_pStream = nullptr;
+    }
+    if (!m_tempFilePath.empty()) {
+        DeleteFileW(m_tempFilePath.c_str());
+    }
+    g_dllRefCount--;
+}
+
+IFACEMETHODIMP ThumbForgeHtmlThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
+    if (!ppv) return E_POINTER;
+    *ppv = nullptr;
+
+    if (riid == IID_IUnknown || riid == __uuidof(IThumbnailProvider)) {
+        *ppv = static_cast<IThumbnailProvider*>(this);
+    } else if (riid == __uuidof(IInitializeWithStream)) {
+        *ppv = static_cast<IInitializeWithStream*>(this);
+    } else if (riid == __uuidof(IInitializeWithItem)) {
+        *ppv = static_cast<IInitializeWithItem*>(this);
+    } else if (riid == __uuidof(IInitializeWithFile)) {
+        *ppv = static_cast<IInitializeWithFile*>(this);
+    } else {
+        return E_NOINTERFACE;
+    }
+
+    AddRef();
+    return S_OK;
+}
+
+IFACEMETHODIMP_(ULONG) ThumbForgeHtmlThumbnailProvider::AddRef() {
+    return ++m_refCount;
+}
+
+IFACEMETHODIMP_(ULONG) ThumbForgeHtmlThumbnailProvider::Release() {
+    ULONG ref = --m_refCount;
+    if (ref == 0) {
+        delete this;
+    }
+    return ref;
+}
+
+IFACEMETHODIMP ThumbForgeHtmlThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
+    if (m_pStream) {
+        m_pStream->Release();
+        m_pStream = nullptr;
+    }
+    if (pstream) {
+        m_pStream = pstream;
+        m_pStream->AddRef();
+
+        STATSTG stat = {0};
+        if (SUCCEEDED(pstream->Stat(&stat, STATFLAG_DEFAULT)) && stat.pwcsName) {
+            std::wstring path = stat.pwcsName;
+            CoTaskMemFree(stat.pwcsName);
+            if (!path.empty() && PathFileExistsW(path.c_str())) {
+                m_filePath = path;
+            }
+        }
+    }
+    return S_OK;
+}
+
+IFACEMETHODIMP ThumbForgeHtmlThumbnailProvider::Initialize(IShellItem *psi, DWORD /*grfMode*/) {
+    if (psi) {
+        LPWSTR pszPath = nullptr;
+        if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath)) && pszPath) {
+            m_filePath = pszPath;
+            CoTaskMemFree(pszPath);
+        }
+    }
+    return S_OK;
+}
+
+IFACEMETHODIMP ThumbForgeHtmlThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
+    if (pszFilePath) {
+        m_filePath = pszFilePath;
+    }
+    return S_OK;
+}
+
+IFACEMETHODIMP ThumbForgeHtmlThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
+    if (!phbmp || !pdwAlpha) {
+        return E_POINTER;
+    }
+
+    *phbmp = nullptr;
+    *pdwAlpha = WTSAT_RGB;
+
+    std::wstring renderPath = m_filePath;
+    if ((renderPath.empty() || !PathFileExistsW(renderPath.c_str())) && m_pStream) {
+        std::wstring ext = PathFindExtensionW(m_filePath.c_str());
+        if (ext.empty()) ext = L".html";
+        if (DumpStreamToTempFile(m_pStream, ext, 10 * 1024 * 1024, m_tempFilePath)) {
+            renderPath = m_tempFilePath;
+        }
+    }
+
+    if (!renderPath.empty() && PathFileExistsW(renderPath.c_str())) {
+        HtmlThumbnailResult res = HtmlRenderer::RenderThumbnail(renderPath, cx);
+        if (res.success && res.hBitmap) {
+            *phbmp = res.hBitmap;
+            *pdwAlpha = res.alphaType;
+            return S_OK;
+        }
+    }
+
+    return E_FAIL;
+}
+
+// ============================================================================
+// ThumbForgeEpubThumbnailProvider Implementation
+// ============================================================================
+
+ThumbForgeEpubThumbnailProvider::ThumbForgeEpubThumbnailProvider() {
+    g_dllRefCount++;
+}
+
+ThumbForgeEpubThumbnailProvider::~ThumbForgeEpubThumbnailProvider() {
+    if (m_pStream) {
+        m_pStream->Release();
+        m_pStream = nullptr;
+    }
+    if (!m_tempFilePath.empty()) {
+        DeleteFileW(m_tempFilePath.c_str());
+    }
+    g_dllRefCount--;
+}
+
+IFACEMETHODIMP ThumbForgeEpubThumbnailProvider::QueryInterface(REFIID riid, void **ppv) {
+    if (!ppv) return E_POINTER;
+    *ppv = nullptr;
+
+    if (riid == IID_IUnknown || riid == __uuidof(IThumbnailProvider)) {
+        *ppv = static_cast<IThumbnailProvider*>(this);
+    } else if (riid == __uuidof(IInitializeWithStream)) {
+        *ppv = static_cast<IInitializeWithStream*>(this);
+    } else if (riid == __uuidof(IInitializeWithItem)) {
+        *ppv = static_cast<IInitializeWithItem*>(this);
+    } else if (riid == __uuidof(IInitializeWithFile)) {
+        *ppv = static_cast<IInitializeWithFile*>(this);
+    } else {
+        return E_NOINTERFACE;
+    }
+
+    AddRef();
+    return S_OK;
+}
+
+IFACEMETHODIMP_(ULONG) ThumbForgeEpubThumbnailProvider::AddRef() {
+    return ++m_refCount;
+}
+
+IFACEMETHODIMP_(ULONG) ThumbForgeEpubThumbnailProvider::Release() {
+    ULONG ref = --m_refCount;
+    if (ref == 0) {
+        delete this;
+    }
+    return ref;
+}
+
+IFACEMETHODIMP ThumbForgeEpubThumbnailProvider::Initialize(IStream *pstream, DWORD /*grfMode*/) {
+    if (m_pStream) {
+        m_pStream->Release();
+        m_pStream = nullptr;
+    }
+    if (pstream) {
+        m_pStream = pstream;
+        m_pStream->AddRef();
+
+        STATSTG stat = {0};
+        if (SUCCEEDED(pstream->Stat(&stat, STATFLAG_DEFAULT)) && stat.pwcsName) {
+            std::wstring path = stat.pwcsName;
+            CoTaskMemFree(stat.pwcsName);
+            if (!path.empty() && PathFileExistsW(path.c_str())) {
+                m_filePath = path;
+            }
+        }
+    }
+    return S_OK;
+}
+
+IFACEMETHODIMP ThumbForgeEpubThumbnailProvider::Initialize(IShellItem *psi, DWORD /*grfMode*/) {
+    if (psi) {
+        LPWSTR pszPath = nullptr;
+        if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath)) && pszPath) {
+            m_filePath = pszPath;
+            CoTaskMemFree(pszPath);
+        }
+    }
+    return S_OK;
+}
+
+IFACEMETHODIMP ThumbForgeEpubThumbnailProvider::Initialize(LPCWSTR pszFilePath, DWORD /*grfMode*/) {
+    if (pszFilePath) {
+        m_filePath = pszFilePath;
+    }
+    return S_OK;
+}
+
+IFACEMETHODIMP ThumbForgeEpubThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha) {
+    if (!phbmp || !pdwAlpha) {
+        return E_POINTER;
+    }
+
+    *phbmp = nullptr;
+    *pdwAlpha = WTSAT_RGB;
+
+    std::wstring renderPath = m_filePath;
+    if ((renderPath.empty() || !PathFileExistsW(renderPath.c_str())) && m_pStream) {
+        if (DumpStreamToTempFile(m_pStream, L".epub", 100 * 1024 * 1024, m_tempFilePath)) {
+            renderPath = m_tempFilePath;
+        }
+    }
+
+    if (!renderPath.empty() && PathFileExistsW(renderPath.c_str())) {
+        EpubThumbnailResult res = EpubRenderer::RenderThumbnail(renderPath, cx);
         if (res.success && res.hBitmap) {
             *phbmp = res.hBitmap;
             *pdwAlpha = res.alphaType;

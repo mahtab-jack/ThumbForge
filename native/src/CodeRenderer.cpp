@@ -115,12 +115,12 @@ CodeThumbnailResult CodeRenderer::RenderFromMemory(const BYTE* data, size_t size
         float sheetW = targetSize - pad * 2;
         float sheetH = targetSize - pad * 2;
 
-        Gdiplus::SolidBrush editorBg(Gdiplus::Color(255, 15, 15, 19)); // #0F0F13 Editor Black
+        Gdiplus::SolidBrush editorBg(Gdiplus::Color(0, 0, 0, 0)); // Transparent Background
         g.FillRectangle(&editorBg, pad, pad, sheetW, sheetH);
 
         // 2. Title Header Bar with Format Badge
         float headerH = sheetH * 0.16f;
-        Gdiplus::SolidBrush headerBg(Gdiplus::Color(255, 24, 24, 28)); // #18181C
+        Gdiplus::SolidBrush headerBg(Gdiplus::Color(0, 0, 0, 0)); // Transparent header
         g.FillRectangle(&headerBg, pad, pad, sheetW, headerH);
 
         // Determine badge label and color based on format

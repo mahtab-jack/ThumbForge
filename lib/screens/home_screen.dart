@@ -16,7 +16,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   ShellStatus _status = ShellStatus.empty();
-  bool _isActionLoading = false;
+  bool _isApplyLoading = false;
+  bool _isResetLoading = false;
+  bool _isRefreshLoading = false;
+
+  bool get _isAnyActionLoading => _isApplyLoading || _isResetLoading || _isRefreshLoading;
+
   String? _statusBanner;
   bool _bannerIsSuccess = true;
 
@@ -25,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _audioEnabled = true;
   bool _apkEnabled = true;
   bool _codeEnabled = true;
+  bool _htmlEnabled = true;
+  bool _epubEnabled = true;
 
   @override
   void initState() {
@@ -43,6 +50,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _audioEnabled = s.isAudioEnabled;
           _apkEnabled = s.isApkEnabled;
           _codeEnabled = s.isCodeEnabled;
+          _htmlEnabled = s.isHtmlEnabled;
+          _epubEnabled = s.isEpubEnabled;
         }
       });
     }
@@ -50,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handleApply() async {
     setState(() {
-      _isActionLoading = true;
+      _isApplyLoading = true;
       _statusBanner = null;
     });
 
@@ -60,13 +69,15 @@ class _HomeScreenState extends State<HomeScreen> {
       enableAudio: _audioEnabled,
       enableApk: _apkEnabled,
       enableCode: _codeEnabled,
+      enableHtml: _htmlEnabled,
+      enableEpub: _epubEnabled,
     );
 
     await _refreshStatus();
 
     if (mounted) {
       setState(() {
-        _isActionLoading = false;
+        _isApplyLoading = false;
         _bannerIsSuccess = ok;
         _statusBanner = ok
             ? 'CUSTOM THUMBNAILS APPLIED // WINDOWS EXPLORER NOTIFIED'
@@ -77,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handleReset() async {
     setState(() {
-      _isActionLoading = true;
+      _isResetLoading = true;
       _statusBanner = null;
     });
 
@@ -86,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (mounted) {
       setState(() {
-        _isActionLoading = false;
+        _isResetLoading = false;
         _bannerIsSuccess = ok;
         _statusBanner = ok
             ? 'RESTORED WINDOWS DEFAULT THUMBNAILS // EXPLORER CACHE FLUSHED'
@@ -97,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handleRefreshCache() async {
     setState(() {
-      _isActionLoading = true;
+      _isRefreshLoading = true;
       _statusBanner = null;
     });
 
@@ -105,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (mounted) {
       setState(() {
-        _isActionLoading = false;
+        _isRefreshLoading = false;
         _bannerIsSuccess = ok;
         _statusBanner = ok
             ? 'THUMBNAIL CACHE PURGED // EXPLORER WINDOWS RELOADED'
@@ -144,22 +155,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: palette.accent, width: 2),
-                          ),
+                        SizedBox(
+                          width: 38,
+                          height: 38,
                           child: Image.asset(
                             'Assets/app_icon.png',
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                             errorBuilder: (context, error, stackTrace) =>
                                 const SizedBox.shrink(),
                           ),
                         ),
                         const SizedBox(width: 14),
                         Text(
-                          'PREVIEWICON',
+                          'THUMBFORGE',
                           style: KineticTheme.displayLarge.copyWith(
                             color: palette.foreground,
                             letterSpacing: -1.0,
@@ -205,7 +213,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 12),
                     _telemetryBlock(palette, 'APK', _status.isApkEnabled ? 'ON' : 'OFF', _status.isApkEnabled),
                     const SizedBox(width: 12),
-                    _telemetryBlock(palette, 'CODE', '${_status.codeExtensionsEnabledCount}/9', _status.isCodeEnabled),
+                    _telemetryBlock(palette, 'CODE', '${_status.codeExtensionsEnabledCount}/6', _status.isCodeEnabled),
+                    const SizedBox(width: 12),
+                    _telemetryBlock(palette, 'HTML', '${_status.htmlExtensionsEnabledCount}/2', _status.isHtmlEnabled),
+                    const SizedBox(width: 12),
+                    _telemetryBlock(palette, 'EPUB', '${_status.epubExtensionsEnabledCount}/1', _status.isEpubEnabled),
                   ],
                 ),
               ],
@@ -215,12 +227,14 @@ class _HomeScreenState extends State<HomeScreen> {
           // Infinite Marquee Ticker
           const MarqueeTicker(
             items: [
-              'ENGINE: PDFIUM V8076 • FFMPEG 7.1 • NATIVE GDI+ • SYSTEM PARSERS',
+              'ENGINE: CHROMIUM HEADLESS • PDFIUM V8076 • FFMPEG 7.1 • NATIVE GDI+',
               'ISOLATION: SYSTEM FILE ASSOCIATIONS SAFE // ZERO REGISTRY CONFLICT',
+              'HTML: TRUE BROWSER RENDERING (A4 RATIO) // NO CODE TEXT',
+              'EPUB: A4 BOOK SHEET & COVER PREVIEW // PDF COMPATIBLE RATIO',
               'PDF: CLEAN NATURAL CORNER // CENTER LOCK & CORRUPT CANVAS',
               'VIDEO: 16:9 • 9:16 • 1:1 ASPECT PRESERVATION WITH CENTER OVERLAY',
-              'AUDIO: ALBUM ART COVER WITH CENTER MUSIC EMBLEM (ASSETS/MUSIC.PNG)',
-              'APK: ANDROID APP LAUNCHER ICON CENTERED ON CARD CANVAS',
+              'AUDIO: ALBUM ART COVER WITH CENTER MUSIC EMBLEM',
+              'APK: ANDROID ORIGINAL APP LAUNCHER ICON RESOLUTION',
               'CODE: JSON • MARKDOWN • JAVASCRIPT • CSS COLORFUL SYNTAX SHEETS',
               'DEFAULT APP ASSOCIATIONS: 100% UNTOUCHED // CLEAN RESTORE SUPPORTED',
             ],
@@ -237,52 +251,57 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Left Control Column
                   Expanded(
                     flex: 5,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Status Notification Banner
-                          if (_statusBanner != null) ...[
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: _bannerIsSuccess
-                                    ? palette.muted
-                                    : (palette.isDark ? const Color(0xFF2A1010) : const Color(0xFFFDE8E8)),
-                                border: Border.all(
-                                  color: _bannerIsSuccess ? palette.accent : KineticColors.error,
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    color: _bannerIsSuccess ? palette.accent : KineticColors.error,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      _statusBanner!,
-                                      style: KineticTheme.labelSmall.copyWith(
-                                        color: palette.foreground,
-                                        letterSpacing: 1.0,
-                                      ),
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () => setState(() => _statusBanner = null),
-                                    child: MouseRegion(
-                                      cursor: SystemMouseCursors.click,
-                                      child: Icon(Icons.close, size: 16, color: palette.mutedForeground),
-                                    ),
-                                  ),
-                                ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Status Notification Banner (Fixed position)
+                        if (_statusBanner != null) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: _bannerIsSuccess
+                                  ? palette.muted
+                                  : (palette.isDark ? const Color(0xFF2A1010) : const Color(0xFFFDE8E8)),
+                              border: Border.all(
+                                color: _bannerIsSuccess ? palette.accent : KineticColors.error,
+                                width: 1.5,
                               ),
                             ),
-                            const SizedBox(height: 20),
-                          ],
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  color: _bannerIsSuccess ? palette.accent : KineticColors.error,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    _statusBanner!,
+                                    style: KineticTheme.labelSmall.copyWith(
+                                      color: palette.foreground,
+                                      letterSpacing: 1.0,
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => setState(() => _statusBanner = null),
+                                  child: MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: Icon(Icons.close, size: 16, color: palette.mutedForeground),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+
 
                           // Module 01: PDF
                           KineticToggleCard(
@@ -342,6 +361,30 @@ class _HomeScreenState extends State<HomeScreen> {
                             onChanged: (val) => setState(() => _codeEnabled = val),
                           ),
 
+                          const SizedBox(height: 16),
+
+                          // Module 06: HTML Browser Preview
+                          KineticToggleCard(
+                            number: '06',
+                            title: 'HTML BROWSER PREVIEWS',
+                            subtitle: 'Actual web page rendering in A4 format (not code/text) via headless browser engine',
+                            tags: const ['A4 FORMAT', 'TRUE BROWSER', 'NO CODE', '.HTML', '.HTM'],
+                            value: _htmlEnabled,
+                            onChanged: (val) => setState(() => _htmlEnabled = val),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Module 07: EPUB Book Preview
+                          KineticToggleCard(
+                            number: '07',
+                            title: 'EPUB BOOK PREVIEWS',
+                            subtitle: 'A4 book sheet layout with high-res cover art and chapter previews similar to PDF',
+                            tags: const ['A4 BOOK SHEET', 'COVER ART', 'PDF STYLE', '.EPUB'],
+                            value: _epubEnabled,
+                            onChanged: (val) => setState(() => _epubEnabled = val),
+                          ),
+
                           const SizedBox(height: 28),
 
                           // Action Buttons
@@ -352,8 +395,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: KineticButton(
                                   label: 'APPLY THUMBNAILS',
                                   variant: KineticButtonVariant.primary,
-                                  isLoading: _isActionLoading,
-                                  onPressed: _handleApply,
+                                  isLoading: _isApplyLoading,
+                                  onPressed: _isAnyActionLoading ? null : _handleApply,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -362,8 +405,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: KineticButton(
                                   label: 'RESET DEFAULTS',
                                   variant: KineticButtonVariant.outline,
-                                  isLoading: _isActionLoading,
-                                  onPressed: _handleReset,
+                                  isLoading: _isResetLoading,
+                                  onPressed: _isAnyActionLoading ? null : _handleReset,
                                 ),
                               ),
                             ],
@@ -376,13 +419,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             label: 'PURGE CACHE & RELOAD EXPLORER',
                             variant: KineticButtonVariant.outline,
                             height: 44,
-                            isLoading: _isActionLoading,
-                            onPressed: _handleRefreshCache,
+                            isLoading: _isRefreshLoading,
+                            onPressed: _isAnyActionLoading ? null : _handleRefreshCache,
                           ),
                         ],
                       ),
                     ),
                   ),
+                      ],
+                    ),
+                  ),
+
 
                   const SizedBox(width: 32),
 

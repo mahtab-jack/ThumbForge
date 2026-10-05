@@ -4,6 +4,8 @@
 #include "AudioRenderer.h"
 #include "ApkRenderer.h"
 #include "CodeRenderer.h"
+#include "HtmlRenderer.h"
+#include "EpubRenderer.h"
 #include "ShellRegistry.h"
 #include <iostream>
 #include <fstream>
@@ -85,6 +87,12 @@ int wmain(int argc, wchar_t* argv[]) {
                    << L"\"isCodeEnabled\":" << (st.isCodeEnabled ? L"true" : L"false") << L","
                    << L"\"codeExtensionsEnabledCount\":" << st.codeExtensionsEnabledCount << L","
                    << L"\"totalCodeExtensionsCount\":" << st.totalCodeExtensionsCount << L","
+                   << L"\"isHtmlEnabled\":" << (st.isHtmlEnabled ? L"true" : L"false") << L","
+                   << L"\"htmlExtensionsEnabledCount\":" << st.htmlExtensionsEnabledCount << L","
+                   << L"\"totalHtmlExtensionsCount\":" << st.totalHtmlExtensionsCount << L","
+                   << L"\"isEpubEnabled\":" << (st.isEpubEnabled ? L"true" : L"false") << L","
+                   << L"\"epubExtensionsEnabledCount\":" << st.epubExtensionsEnabledCount << L","
+                   << L"\"totalEpubExtensionsCount\":" << st.totalEpubExtensionsCount << L","
                    << L"\"ffmpegPath\":\"";
         PrintJsonEscaped(ffmpeg);
         std::wcout << L"\"}\n";
@@ -97,6 +105,8 @@ int wmain(int argc, wchar_t* argv[]) {
         bool enableAudio = true;
         bool enableApk = true;
         bool enableCode = true;
+        bool enableHtml = true;
+        bool enableEpub = true;
         std::wstring customDll;
 
         for (int i = 2; i < argc; ++i) {
@@ -111,10 +121,14 @@ int wmain(int argc, wchar_t* argv[]) {
             if (arg == L"--apk=1" || arg == L"--apk") enableApk = true;
             if (arg == L"--code=0" || arg == L"--no-code") enableCode = false;
             if (arg == L"--code=1" || arg == L"--code") enableCode = true;
+            if (arg == L"--html=0" || arg == L"--no-html") enableHtml = false;
+            if (arg == L"--html=1" || arg == L"--html") enableHtml = true;
+            if (arg == L"--epub=0" || arg == L"--no-epub") enableEpub = false;
+            if (arg == L"--epub=1" || arg == L"--epub") enableEpub = true;
             if (arg.rfind(L"--dll=", 0) == 0) customDll = arg.substr(6);
         }
 
-        bool ok = ShellRegistry::Register(enablePdf, enableVideo, enableAudio, enableApk, enableCode, customDll);
+        bool ok = ShellRegistry::Register(enablePdf, enableVideo, enableAudio, enableApk, enableCode, enableHtml, enableEpub, customDll);
         std::wcout << L"{\"success\":" << (ok ? L"true" : L"false") << L"}\n";
         return ok ? 0 : 1;
     }
@@ -319,6 +333,36 @@ int wmain(int argc, wchar_t* argv[]) {
                 return ok ? 0 : 1;
             }
             std::wcout << L"{\"success\":false,\"error\":\"APK thumbnail generation failed\"}\n";
+            return 1;
+        }
+
+        if (HtmlRenderer::IsSupportedExtension(ext)) {
+            HtmlThumbnailResult res = HtmlRenderer::RenderThumbnail(filePath, cx);
+            if (res.success && res.hBitmap) {
+                bool ok = SaveHBitmapToPng(res.hBitmap, outPath);
+                DeleteObject(res.hBitmap);
+                std::wcout << L"{\"success\":" << (ok ? L"true" : L"false")
+                           << L",\"width\":" << res.width
+                           << L",\"height\":" << res.height
+                           << L",\"type\":\"html\"}\n";
+                return ok ? 0 : 1;
+            }
+            std::wcout << L"{\"success\":false,\"error\":\"HTML thumbnail generation failed\"}\n";
+            return 1;
+        }
+
+        if (EpubRenderer::IsSupportedExtension(ext)) {
+            EpubThumbnailResult res = EpubRenderer::RenderThumbnail(filePath, cx);
+            if (res.success && res.hBitmap) {
+                bool ok = SaveHBitmapToPng(res.hBitmap, outPath);
+                DeleteObject(res.hBitmap);
+                std::wcout << L"{\"success\":" << (ok ? L"true" : L"false")
+                           << L",\"width\":" << res.width
+                           << L",\"height\":" << res.height
+                           << L",\"type\":\"epub\"}\n";
+                return ok ? 0 : 1;
+            }
+            std::wcout << L"{\"success\":false,\"error\":\"EPUB thumbnail generation failed\"}\n";
             return 1;
         }
 

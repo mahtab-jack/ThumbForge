@@ -186,7 +186,7 @@ AudioThumbnailResult AudioRenderer::RenderThumbnail(const std::wstring& filePath
         // Fallback: No cover image, render stylish vinyl record / audio card
         float pad = size * 0.04f;
         float cardSize = size - pad * 2;
-        Gdiplus::SolidBrush cardBg(Gdiplus::Color(255, 18, 18, 22)); // Deep rich black
+        Gdiplus::SolidBrush cardBg(Gdiplus::Color(0, 0, 0, 0)); // Transparent
         g.FillRectangle(&cardBg, pad, pad, cardSize, cardSize);
 
         // Concentric vinyl groove circles
@@ -247,7 +247,7 @@ AudioThumbnailResult AudioRenderer::RenderSample(bool withCover, UINT cx) {
 
         if (withCover) {
             // Simulated album cover art with geometric gradient
-            Gdiplus::SolidBrush coverBrush(Gdiplus::Color(255, 34, 40, 52));
+            Gdiplus::SolidBrush coverBrush(Gdiplus::Color(0, 0, 0, 0)); // Transparent
             g.FillRectangle(&coverBrush, pad, pad, cardSize, cardSize);
 
             // Artistic geometric stripes on cover
@@ -272,7 +272,7 @@ AudioThumbnailResult AudioRenderer::RenderSample(bool withCover, UINT cx) {
             }
         } else {
             // Vinyl disc style
-            Gdiplus::SolidBrush cardBg(Gdiplus::Color(255, 18, 18, 22));
+            Gdiplus::SolidBrush cardBg(Gdiplus::Color(0, 0, 0, 0)); // Transparent
             g.FillRectangle(&cardBg, pad, pad, cardSize, cardSize);
 
             float center = size * 0.5f;
